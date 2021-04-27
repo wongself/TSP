@@ -32,12 +32,19 @@ def calculate_path_distance(distance_matrix, path_candidate):
 
 
 # All domain solutions corresponding to the current optimal path
-def geberate_neighbor_path(path_best):
+def generate_neighbor_path(path_best):
     path_new = []
-    for front in range(0, city_num - 1):
-        for end in range(front + 1, city_num):
-            path = path_best.copy()
-            path[front], path[end] = path[end], path[front]
+    # for front in range(0, city_num - 1):
+    #     for end in range(front + 1, city_num):
+    #         path = path_best.copy()
+    #         path[front], path[end] = path[end], path[front]
+    #         path_new.append(path)
+    for i in range(0, neigh_max):
+        exchange = random.sample(range(0, len(path_best)), 2)
+        path = path_best.copy()
+        path[exchange[0]] = path_best[exchange[1]]
+        path[exchange[1]] = path_best[exchange[0]]
+        if path not in path_new:
             path_new.append(path)
     return path_new
 
@@ -45,8 +52,9 @@ def geberate_neighbor_path(path_best):
 # Setting
 city_num = 48  # Total number of cities
 city_loc = np.loadtxt('city_location.txt')  # List of city coordinates
-iter_num = 100  # Iteration number
-table_len = 20  # Tabu table length
+neigh_max = 50  # Neighbor MAX number
+iter_num = 4000  # Iteration number
+table_len = 200  # Tabu table length
 tabu_table = []
 
 # Path Initialization
@@ -54,6 +62,7 @@ distance_matrix = calculate_distance_matrix()
 path_init = []
 sequence_init = list(range(city_num))
 random.shuffle(sequence_init)
+sequence_init = [23, 46, 42, 26, 34, 37, 39, 17, 10, 30, 27, 1, 32, 7, 6, 31, 47, 15, 33, 12, 24, 38, 2, 29, 9, 5, 35, 28, 25, 20, 3, 22, 45, 4, 14, 8, 18, 41, 40, 43, 19, 0, 13, 44, 21, 16, 11, 36]
 path_init.append(sequence_init)
 tabu_table.append(sequence_init)
 
@@ -68,7 +77,7 @@ expect_dist = dist_best
 expect_best = path_best
 
 for iter in range(iter_num):  # 迭代
-    path_new = geberate_neighbor_path(path_best)  # 寻找全领域新解
+    path_new = generate_neighbor_path(path_best)  # 寻找全领域新解
     dist_new = calculate_path_distance(distance_matrix, path_new)  # 寻找全领域新解
     dist_best = min(dist_new)  # 最短距离
     path_best = path_new[dist_new.index(dist_best)]  # 对应的最短路径方案
