@@ -1,6 +1,8 @@
 import random
 import numpy as np
 import math
+import matplotlib.pyplot as plt
+import time
 
 
 # Distance matrix between two cities
@@ -34,11 +36,6 @@ def calculate_path_distance(distance_matrix, path_candidate):
 # All domain solutions corresponding to the current optimal path
 def generate_neighbor_path(path_best):
     path_new = []
-    # for front in range(0, city_num - 1):
-    #     for end in range(front + 1, city_num):
-    #         path = path_best.copy()
-    #         path[front], path[end] = path[end], path[front]
-    #         path_new.append(path)
     for i in range(0, neigh_max):
         exchange = random.sample(range(0, len(path_best)), 2)
         path = path_best.copy()
@@ -52,8 +49,8 @@ def generate_neighbor_path(path_best):
 # Setting
 city_num = 48  # total number of cities
 city_loc = np.loadtxt('city_location.txt')  # list of city coordinates
-neigh_max = 50  # neighbor MAX number
-iter_num = 4000  # iteration number
+neigh_max = 50  # neighbor max number
+iter_num = 30000  # iteration number
 table_len = 200  # tabu table length
 tabu_table = []
 
@@ -62,7 +59,6 @@ distance_matrix = calculate_distance_matrix()
 path_init = []
 sequence_init = list(range(city_num))
 random.shuffle(sequence_init)
-sequence_init = [23, 46, 42, 26, 34, 37, 39, 17, 10, 30, 27, 1, 32, 7, 6, 31, 47, 15, 33, 12, 24, 38, 2, 29, 9, 5, 35, 28, 25, 20, 3, 22, 45, 4, 14, 8, 18, 41, 40, 43, 19, 0, 13, 44, 21, 16, 11, 36]
 path_init.append(sequence_init)
 tabu_table.append(sequence_init)
 
@@ -70,17 +66,21 @@ tabu_table.append(sequence_init)
 dist_list = calculate_path_distance(distance_matrix, path_init)
 dist_best = min(dist_list)  # 最短距离
 path_best = path_init[dist_list.index(dist_best)]  # 对应的最短路径方案
-print(path_init)
 
 # Initial Expectation
 expect_dist = dist_best
 expect_best = path_best
+dist_curr = [dist_best]
+iter_curr = 0
+
+time_start = time.time()
 
 for iter in range(iter_num):  # 迭代
     path_new = generate_neighbor_path(path_best)  # 寻找全领域新解
     dist_new = calculate_path_distance(distance_matrix, path_new)  # 寻找全领域新解
     dist_best = min(dist_new)  # 最短距离
     path_best = path_new[dist_new.index(dist_best)]  # 对应的最短路径方案
+    dist_curr.append(dist_best)
     # 选择路径
     if dist_best < expect_dist:  # 最短的<期望
         expect_dist = dist_best
@@ -90,6 +90,7 @@ for iter in range(iter_num):  # 迭代
             tabu_table.append(path_best)
         else:
             tabu_table.append(path_best)
+        iter_curr = iter + 1
     else:  # 最短的还是不能改善期望
         if path_best in tabu_table:  # 在禁忌表里
             dist_new.remove(dist_best)
@@ -102,6 +103,13 @@ for iter in range(iter_num):  # 迭代
     if len(tabu_table) >= table_len:
         del tabu_table[0]
 
+time_end = time.time()
+
+print('Time:', time_end - time_start)
 print('Initial path:', sequence_init)
 print('Shortest distance:', expect_dist)
 print('Shortest path:', expect_best)
+print('Iter of best path:', iter_curr)
+
+plt.plot(range(0, len(dist_curr)), dist_curr)
+plt.show()
