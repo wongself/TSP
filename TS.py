@@ -50,11 +50,11 @@ def generate_neighbor_path(path_best):
 
 
 # Setting
-city_num = 48  # Total number of cities
-city_loc = np.loadtxt('city_location.txt')  # List of city coordinates
-neigh_max = 50  # Neighbor MAX number
-iter_num = 4000  # Iteration number
-table_len = 200  # Tabu table length
+city_num = 48  # total number of cities
+city_loc = np.loadtxt('city_location.txt')  # list of city coordinates
+neigh_max = 50  # neighbor MAX number
+iter_num = 4000  # iteration number
+table_len = 200  # tabu table length
 tabu_table = []
 
 # Path Initialization
