@@ -2,35 +2,34 @@ import random
 import numpy as np
 import math
 
-city_num = 48  # 城市总数
-city_loc = np.loadtxt('city_location.txt')
+city_num = 48  # Total number of cities
+city_loc = np.loadtxt('city_location.txt')  # List of city coordinates
 table_len = 15  # 禁忌表长度
 taboo_table = []
 
 
-# 计算城市之间的距离
-def distance_p2p_mat():
-    dis_mat = []
-    for i in range(city_num):
-        dis_mat_each = []
-        for j in range(city_num):
+def calculate_distance_matrix():
+    distance_matrix = []
+    for src in range(city_num):
+        distance_each = []
+        for dst in range(city_num):
             dis = math.sqrt(
-                pow(city_loc[i][1] - city_loc[j][1], 2) +
-                pow(city_loc[i][2] - city_loc[j][2], 2))
-            dis_mat_each.append(dis)
-        dis_mat.append(dis_mat_each)
-    # print(dis_mat)
-    return dis_mat
+                pow(city_loc[src][1] - city_loc[dst][1], 2) +
+                pow(city_loc[src][2] - city_loc[dst][2], 2))
+            distance_each.append(dis)
+        distance_matrix.append(distance_each)
+    # print(distance_matrix)
+    return distance_matrix
 
 
 # 计算所有路径对应的距离
-def cal_newpath(dis_mat, path_new):
+def calculate_path_distance(distance_matrix, path_new):
     dis_list = []
     for each in path_new:
         dis = 0
         for j in range(city_num - 1):
-            dis = dis_mat[each[j]][each[j + 1]] + dis
-        dis = dis_mat[each[29]][each[0]] + dis  # 回家
+            dis = distance_matrix[each[j]][each[j + 1]] + dis
+        dis = distance_matrix[each[29]][each[0]] + dis  # 回家
         dis_list.append(dis)
     return dis_list
 
@@ -48,7 +47,7 @@ def find_newpath(path_best):
 
 # ==========================================
 # 点对点距离矩阵
-dis_mat = distance_p2p_mat()
+distance_matrix = calculate_distance_matrix()
 
 # 设置初始解
 path_initial = []
@@ -61,7 +60,7 @@ print(path_initial)
 taboo_table.append(initial)
 
 # 求初始解的路径长度
-dis_list = cal_newpath(dis_mat, path_initial)
+dis_list = calculate_path_distance(distance_matrix, path_initial)
 dis_best = min(dis_list)  # 最短距离
 path_best = path_initial[dis_list.index(dis_best)]  # 对应的最短路径方案
 # print(path_best)
@@ -75,7 +74,7 @@ for iter in range(5000):  # 迭代
     # print(path_new)
 
     # 求出所有新解的路径长度
-    dis_new = cal_newpath(dis_mat, path_new)
+    dis_new = calculate_path_distance(distance_matrix, path_new)
     # print(dis_new)
 
     # 选择路径
