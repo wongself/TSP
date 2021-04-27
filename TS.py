@@ -7,8 +7,12 @@ import time
 
 # Distance matrix between two cities
 def calculate_distance_matrix():
+    city_x = []
+    city_y = []
     distance_matrix = []
     for src in range(city_num):
+        city_x.append(city_loc[src][1])
+        city_y.append(city_loc[src][2])
         distance_each = []
         for dst in range(city_num):
             dist = math.sqrt(
@@ -17,7 +21,7 @@ def calculate_distance_matrix():
             distance_each.append(dist)
         distance_matrix.append(distance_each)
     # print(distance_matrix)
-    return distance_matrix
+    return city_x, city_y, distance_matrix
 
 
 # Distance corresponding to all paths
@@ -36,8 +40,8 @@ def calculate_path_distance(distance_matrix, path_candidate):
 # All domain solutions corresponding to the current optimal path
 def generate_neighbor_path(path_best):
     path_new = []
-    for i in range(0, neigh_max):
-        exchange = random.sample(range(0, len(path_best)), 2)
+    for i in range(neigh_max):
+        exchange = random.sample(range(len(path_best)), 2)
         path = path_best.copy()
         path[exchange[0]] = path_best[exchange[1]]
         path[exchange[1]] = path_best[exchange[0]]
@@ -55,7 +59,7 @@ table_len = 200  # tabu table length
 tabu_table = []
 
 # Path Initialization
-distance_matrix = calculate_distance_matrix()
+city_location_x, city_location_y, distance_matrix = calculate_distance_matrix()
 path_init = []
 sequence_init = list(range(city_num))
 random.shuffle(sequence_init)
@@ -111,5 +115,27 @@ print('Shortest distance:', expect_dist)
 print('Shortest path:', expect_best)
 print('Iter of best path:', iter_curr)
 
-plt.plot(range(0, len(dist_curr)), dist_curr)
+path_location_x = []
+path_location_y = []
+
+for i in range(city_num):
+    path_location_x.append(city_location_x[expect_best[i]])
+    path_location_y.append(city_location_y[expect_best[i]])
+
+path_location_x.append(city_location_x[expect_best[0]])
+path_location_y.append(city_location_y[expect_best[0]])
+
+plt.figure(figsize=(18, 6))
+plot_location = plt.subplot(1, 2, 1)
+plt.plot(path_location_x, path_location_y)
+plt.scatter(city_location_x, city_location_y, c='r')
+plt.title('Path detail')
+plt.xlabel('x')
+plt.ylabel('y')
+plot_iteration = plt.subplot(1, 2, 2)
+plt.plot(range(len(dist_curr)), dist_curr)
+plt.title('Path cost')
+plt.xlabel('iteration')
+plt.ylabel('cost')
+plt.savefig(time.strftime('%Y-%m-%d %H.%M.%S') + '.png')
 plt.show()
