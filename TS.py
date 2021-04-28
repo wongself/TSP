@@ -1,3 +1,4 @@
+import csv
 import random
 import numpy as np
 import math
@@ -5,14 +6,10 @@ import matplotlib.pyplot as plt
 import time
 
 
-# Distance matrix between two cities
+# distance matrix between two cities
 def calculate_distance_matrix():
-    city_x = []
-    city_y = []
     distance_matrix = []
     for src in range(city_num):
-        city_x.append(city_loc[src][1])
-        city_y.append(city_loc[src][2])
         distance_each = []
         for dst in range(city_num):
             dist = math.sqrt(
@@ -20,8 +17,17 @@ def calculate_distance_matrix():
                 pow(city_loc[src][2] - city_loc[dst][2], 2))
             distance_each.append(dist)
         distance_matrix.append(distance_each)
-    # print(distance_matrix)
-    return city_x, city_y, distance_matrix
+    save_distance_matrix_as_csv(distance_matrix)
+    return distance_matrix
+
+
+# save distance matrix as csv
+def save_distance_matrix_as_csv(distance_matrix):
+    with open('data/distance matrix.csv', 'w', newline='') as f:
+        writer = csv.writer(f, delimiter=',')
+        writer.writerow(['src/dst'] + list(range(1, city_num + 1)))
+        for i in range(city_num):
+            writer.writerow([i + 1] + distance_matrix[i])
 
 
 # Distance corresponding to all paths
@@ -54,12 +60,12 @@ def generate_neighbor_path(path_best):
 city_num = 48  # total number of cities
 city_loc = np.loadtxt('city_location.txt')  # list of city coordinates
 neigh_max = 50  # neighbor max number
-iter_num = 30000  # iteration number
+iter_num = 300  # iteration number
 table_len = 200  # tabu table length
 tabu_table = []
 
 # Path Initialization
-city_location_x, city_location_y, distance_matrix = calculate_distance_matrix()
+distance_matrix = calculate_distance_matrix()
 path_init = []
 sequence_init = list(range(city_num))
 random.shuffle(sequence_init)
@@ -73,7 +79,7 @@ path_best = path_init[dist_list.index(dist_best)]  # 对应的最短路径方案
 
 # Initial Expectation
 expect_dist = dist_best
-expect_best = path_best
+expect_path = path_best
 dist_curr = [dist_best]
 iter_curr = 0
 
@@ -88,7 +94,7 @@ for iter in range(iter_num):  # 迭代
     # 选择路径
     if dist_best < expect_dist:  # 最短的<期望
         expect_dist = dist_best
-        expect_best = path_best  # 更新两个期望
+        expect_path = path_best  # 更新两个期望
         if path_best in tabu_table:
             tabu_table.remove(path_best)
             tabu_table.append(path_best)
@@ -112,23 +118,31 @@ time_end = time.time()
 print('Time:', time_end - time_start)
 print('Initial path:', sequence_init)
 print('Shortest distance:', expect_dist)
-print('Shortest path:', expect_best)
+print('Shortest path:', expect_path)
 print('Iter of best path:', iter_curr)
 
 path_location_x = []
 path_location_y = []
 
 for i in range(city_num):
-    path_location_x.append(city_location_x[expect_best[i]])
-    path_location_y.append(city_location_y[expect_best[i]])
+    path_location_x.append(city_loc[expect_path[i]][1])
+    path_location_y.append(city_loc[expect_path[i]][2])
 
-path_location_x.append(city_location_x[expect_best[0]])
-path_location_y.append(city_location_y[expect_best[0]])
+path_location_x.append(city_loc[expect_path[0]][1])
+path_location_y.append(city_loc[expect_path[0]][2])
+
+time_curr = time.strftime('%Y-%m-%d %H.%M.%S')
+
+with open('data/' + time_curr + ' ' + ('%.2f' % expect_dist) + '.txt',
+          'w') as f:
+    f.write('Time: ' + str(time_end - time_start) + '\nInitial path: ' +
+            str(sequence_init) + '\nShortest distance: ' + str(expect_dist) +
+            '\nShortest path: ' + str(expect_path) + '\nIter of best path: ' +
+            str(iter_curr) + '\n')
 
 plt.figure(figsize=(18, 6))
 plot_location = plt.subplot(1, 2, 1)
-plt.plot(path_location_x, path_location_y, 'o-')
-# plt.scatter(city_location_x, city_location_y, c='r')
+plt.plot(path_location_x, path_location_y, marker='o', ms=8, mec='r', mfc='r')
 plt.title('Path detail')
 plt.xlabel('x')
 plt.ylabel('y')
@@ -137,5 +151,5 @@ plt.plot(range(len(dist_curr)), dist_curr)
 plt.title('Path cost')
 plt.xlabel('iteration')
 plt.ylabel('cost')
-plt.savefig(time.strftime('%Y-%m-%d %H.%M.%S') + '.png')
+plt.savefig('data/' + time_curr + ' ' + ('%.2f' % expect_dist) + '.png')
 plt.show()
