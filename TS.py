@@ -7,11 +7,11 @@ import time
 from tqdm import tqdm
 
 # setting
-city_num = 24  # total number of cities
+city_num = 48  # total number of cities
 city_loc = np.loadtxt('city_location.txt')  # list of city coordinates
-neigh_max = 40  # neighbor max number
-iter_num = 10000  # iteration number
-table_len = 100  # tabu table length
+neigh_max = 50  # neighbor max number
+iter_num = 20000  # iteration number
+table_len = 200  # tabu table length
 
 
 # distance matrix between two cities
@@ -138,7 +138,7 @@ def tabu_search(step):
     path_location_x.append(city_loc[expect_path[0]][1])
     path_location_y.append(city_loc[expect_path[0]][2])
 
-    with open('data/z24 ' + ('%.2f' % expect_dist) + '.txt', 'w') as f:
+    with open('data/zzz ' + ('%.2f' % expect_dist) + '.txt', 'w') as f:
         f.write('Time: ' + str(time_end - time_start) + '\nInitial path: ' +
                 str(sequence_init) + '\nShortest distance: ' +
                 str(expect_dist) + '\nShortest path: ' + str(expect_path) +
@@ -160,8 +160,8 @@ def tabu_search(step):
     plt.title('Path cost')
     plt.xlabel('iteration')
     plt.ylabel('cost')
-    plt.savefig('data/z24 ' + ('%.2f' % expect_dist) + '.png')
-    # plt.show()
+    plt.savefig('data/zzz ' + ('%.2f' % expect_dist) + '.png')
+    plt.show()
 
     return expect_dist
 
@@ -169,20 +169,20 @@ def tabu_search(step):
 if __name__ == "__main__":
     tabu_distance = []
 
-    for step in range(10):
+    for step in range(1):
         tabu_distance.append(tabu_search(step))
     print('\nMinimum distance:', min(tabu_distance))
 
-    plt.close('all')
-    plt.figure(figsize=(9, 6))
-    plt.plot(range(len(tabu_distance)),
-             tabu_distance,
-             marker='o',
-             ms=5,
-             mec='r',
-             mfc='r')
-    plt.title('Best distance')
-    plt.xlabel('round')
-    plt.ylabel('distance')
-    plt.savefig('data/min z24 ' + ('%.2f' % min(tabu_distance)) + '.png')
-    plt.show()
+    # plt.close('all')
+    # plt.figure(figsize=(9, 6))
+    # plt.plot(range(len(tabu_distance)),
+    #          tabu_distance,
+    #          marker='o',
+    #          ms=5,
+    #          mec='r',
+    #          mfc='r')
+    # plt.title('Best distance')
+    # plt.xlabel('round')
+    # plt.ylabel('distance')
+    # plt.savefig('data/min zzz ' + ('%.2f' % min(tabu_distance)) + '.png')
+    # plt.show()
